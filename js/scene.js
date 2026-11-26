@@ -535,15 +535,36 @@ function buildKart(def){
     if(wi < 2) steerWheels.push(pivot);
   });
   var shape = def.shape;
-  if(shape === 'tram'){
-    var tb = box(3.7, 1.5, 1.95, body, 0, 1.12, 0); tb.castShadow = true; g.add(tb);
-    g.add(box(3.1, .55, 1.99, stdMat(0xe8f6ee,.3), .15, 1.42, 0));
-    g.add(box(3.1, .42, 1.99, stdMat(0xe8f6ee,.5), .15, .68, 0));
-    g.add(box(2.7, .16, 1.6, stdMat(0x39424e,.6), 0, 1.95, 0));
-    var pg1 = box(1.5,.07,.07, MAT.darkMetal, 0, 2.25, 0); pg1.rotation.z = .5; g.add(pg1);
-    var pg2 = box(1.5,.07,.07, MAT.darkMetal, 0, 2.25, 0); pg2.rotation.z = -.5; g.add(pg2);
-    g.add(box(.55, .95, 1.7, stdMat(0x20242f,.3), 1.62, 1.2, 0));
-    var drv = makeDriver(0x1f9d63, 0x0d5c39, 'cap'); drv.position.set(.4, 1.55, 0); drv.scale.setScalar(.82); g.add(drv);
+  if(shape === 'beefball'){
+    // Beef-ball (牛丸) hawker stall kart — metal hawker cart, big pot of beef balls, skewers & awning
+    var cart = box(3.4, .62, 2.0, body, 0, .62, 0); cart.castShadow = true; g.add(cart);
+    g.add(box(3.44, .26, 2.04, stdMat(0xb9c2cf,.35,.7), 0, .3, 0));                 // steel lower panel
+    g.add(box(3.44, .14, 2.04, stdMat(0x8f2d12,.6), 0, .98, 0));                    // red-orange trim
+    // big steaming pot of beef balls at the front of the cart
+    var pot = new THREE.Mesh(new THREE.CylinderGeometry(.82,.72,.78,16), stdMat(0xc7cedb,.25,.85));
+    pot.position.set(1.02, 1.32, 0); pot.castShadow = true; g.add(pot);
+    var broth = new THREE.Mesh(new THREE.CylinderGeometry(.74,.74,.1,16), stdMat(0x7a3b16,.5));
+    broth.position.set(1.02, 1.72, 0); g.add(broth);
+    [[1.02,0],[.72,.32],[1.32,.3],[.74,-.34],[1.3,-.32]].forEach(function(bp){
+      var ball = new THREE.Mesh(new THREE.SphereGeometry(.21, 10, 8), stdMat(0x9c5a2a,.6));
+      ball.position.set(bp[0], 1.82, bp[1]); ball.castShadow = true; g.add(ball);
+    });
+    // skewers of beef balls standing at the back corner of the cart
+    [-.62, .62].forEach(function(sz){
+      var stick = box(1.15,.06,.06, stdMat(0xd9c9a8,.7), -.28, 1.62, sz); stick.rotation.z = .5; g.add(stick);
+      [-.35, 0, .35].forEach(function(st){
+        var sb = new THREE.Mesh(new THREE.SphereGeometry(.17, 10, 8), stdMat(0x9c5a2a,.6));
+        sb.position.set(-.28 + st*Math.cos(.5), 1.62 + st*Math.sin(.5), sz); g.add(sb);
+      });
+    });
+    // small awning over the pot, on two front poles
+    [-.88, .88].forEach(function(pz){
+      g.add(box(.07, 1.05, .07, MAT.darkMetal, 1.72, 1.95, pz));
+    });
+    var awn = box(1.7, .09, 2.15, stdMat(0xfff3d6,.7), 1.55, 2.5, 0); awn.rotation.z = -.1; g.add(awn);
+    g.add(box(1.74, .05, 2.19, stdMat(0xe4572e,.65), 1.55, 2.44, 0));
+    g.add(box(.8, .5, 1.5, stdMat(0x20242f,.4), 1.78, .95, 0));                     // front counter / windscreen
+    var drv = makeDriver(0xe4572e, 0x8f2d12, 'cap'); drv.position.set(-1.02, .9, 0); g.add(drv);
   } else if(shape === 'tofu'){
     // Tofu-pudding (豆腐花) wooden-bucket stall kart
     var base2 = box(3.2, .55, 2.0, stdMat(0x9a6a33,.7), 0, .58, 0); base2.castShadow = true; g.add(base2);

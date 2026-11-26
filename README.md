@@ -12,7 +12,7 @@ A Hong Kong-themed 3D single-player kart racing game inspired by Mario Kart, wit
 ## 角色
 
 - 冰室阿叔陳記 — 菠蘿包色車，起步快（加速 1.10）
-- 電車姐姐阿珍 — 綠色電車車，防守勁
+- Turkey姐 — 牛丸小販車，防守勁
 - 豆花檔主阿海 — 木桶豆腐花車，轉彎穩
 - 腦場機神黃老闆 — 金色左拼右砌電腦主機車，專剋道具
 
@@ -44,7 +44,7 @@ js/scene.js         3D 場景：賽道、維港景物、隧道、車手模型、
 README.md           本文件
 ```
 
-註：角色大頭像原本是 4 張 `.webp` 圖（`char-chen.webp`、`char-zhen.webp`、
+註：角色大頭像原本是 4 張 `.webp` 圖（`char-chen.webp`、`char-turkey.webp`、
 `char-hai.webp`、`char-wong.webp`），為咗令 GitHub 推送可以用純 UTF-8 文字檔
 處理，呢度以 `data:image/webp` 形式收喺 `js/characters.js` 嘅
 `CHAR_PORTRAITS` 入面，`js/game.js` 嘅 `CHARS[].img` 會引用佢哋。
