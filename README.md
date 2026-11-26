@@ -11,7 +11,7 @@ A Hong Kong-themed 3D single-player kart racing game inspired by Mario Kart, wit
 
 ## 角色
 
-- 冰室阿叔陳記 — 菠蘿包色車，起步快
+- 冰室阿叔陳記 — 菠蘿包色車，起步快（加速 1.10）
 - 電車姐姐阿珍 — 綠色電車車，防守勁
 - 豆花檔主阿海 — 木桶豆腐花車，轉彎穩
 - 腦場機神黃老闆 — 金色左拼右砌電腦主機車，專剋道具
@@ -32,8 +32,35 @@ A Hong Kong-themed 3D single-player kart racing game inspired by Mario Kart, wit
 - 大廳：〈維港放克〉(D 小調迪斯科放克)
 - 比賽：〈霓虹衝刺〉(E 小調競速搖滾)
 
+## 檔案結構
+
+```
+index.html          入口：HTML 骨架，載入 css + js
+css/style.css       全部樣式
+js/three.min.js     Three.js（3D 引擎）
+js/characters.js    4 位角色大頭像（data URI，見下註）
+js/game.js          遊戲邏輯：選單、道具、BGM、輸入、平衡、計圈
+js/scene.js         3D 場景：賽道、維港景物、隧道、車手模型、物理
+README.md           本文件
+```
+
+註：角色大頭像原本是 4 張 `.webp` 圖（`char-chen.webp`、`char-zhen.webp`、
+`char-hai.webp`、`char-wong.webp`），為咗令 GitHub 推送可以用純 UTF-8 文字檔
+處理，呢度以 `data:image/webp` 形式收喺 `js/characters.js` 嘅
+`CHAR_PORTRAITS` 入面，`js/game.js` 嘅 `CHARS[].img` 會引用佢哋。
+如要換相，換 `js/characters.js` 入面對應嘅 data URI 字串即可。
+
 ## 執行
 
-直接用瀏覽器開啟 `index.html` 即可遊玩，無需伺服器。
+用瀏覽器開啟 `index.html` 即可遊玩。因為遊戲用多個檔案，直接雙擊
+`index.html` 以 `file://` 開啟亦可；如瀏覽器攔截本地檔案載入，
+請用簡單 HTTP 伺服器，例如：
 
-Open `index.html` in a browser to play. No server needed.
+```bash
+python3 -m http.server 8000
+# 然後開 http://localhost:8000/
+```
+
+Open `index.html` in a browser to play. If your browser blocks local file
+loading, serve it with e.g. `python3 -m http.server 8000` and open
+http://localhost:8000/
