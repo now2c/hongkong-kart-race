@@ -39,8 +39,9 @@ index.html          入口：HTML 骨架，載入 css + js
 css/style.css       全部樣式
 js/three.min.js     Three.js（3D 引擎）
 js/characters.js    4 位角色大頭像（data URI，見下註）
+js/billboards.js    4 張賽道旁相片廣告板（data URI，見下註）
 js/game.js          遊戲邏輯：選單、道具、BGM、輸入、平衡、計圈
-js/scene.js         3D 場景：賽道、維港景物、隧道、車手模型、物理
+js/scene.js         3D 場景：賽道、維港景物、隧道、車手模型、物理、廣告板
 README.md           本文件
 ```
 
@@ -49,6 +50,23 @@ README.md           本文件
 處理，呢度以 `data:image/webp` 形式收喺 `js/characters.js` 嘅
 `CHAR_PORTRAITS` 入面，`js/game.js` 嘅 `CHARS[].img` 會引用佢哋。
 如要換相，換 `js/characters.js` 入面對應嘅 data URI 字串即可。
+
+## 賽道旁相片廣告板
+
+賽道旁有 4 塊用真實香港相片做嘅廣告板（雙面顯示，連標題牌）：
+
+- 維港夜景（中環海濱直路，f:.09）— 用戶揀嘅 #2 相：原本 wallpapercave 連結被封，
+  改用另一張高清維港夜景全景（IFC + 中銀大廈）
+- 天星小輪（天星碼頭旁，f:.435）— 用戶揀嘅 #5 相：日落時分嘅天星小輪
+- 叮叮電車（銅鑼灣電車段，f:.545）— 用戶揀嘅 #4 相：137 號同 148 號雙層電車
+- 大排檔夜色（街市段，f:.64）— 用戶揀嘅 #6 相：大排檔夜市
+
+註：相片原本是 4 張 `.jpg` 圖（`billboard-harbour-night.jpg`、
+`billboard-ferry.jpg`、`billboard-trams.jpg`、`billboard-daipaidong.jpg`），
+同角色大頭像一樣，為咗令 GitHub 推送可以用純 UTF-8 文字檔處理，呢度以
+`data:image/jpeg` 形式收喺 `js/billboards.js` 嘅 `BILLBOARD_PHOTOS` 入面，
+`js/scene.js` 嘅 `billboards[].img` 會引用佢哋。
+如要換相，換 `js/billboards.js` 入面對應嘅 data URI 字串即可。
 
 ## 執行
 

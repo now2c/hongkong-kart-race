@@ -318,6 +318,50 @@ var dynFerry, dynJunk, tramGroup, tramIdx, tramHitCool = {};
     plate.position.set(pl.x, 5.6, pl.z); faceRoad(plate, pl, sg.s); S.add(plate);
   });
 
+  /* --- photo billboards: real Hong Kong photos as trackside ad boards ---
+     User picks: #2 Victoria Harbour night panorama (Central waterfront straight),
+     #4 double-decker trams (Causeway Bay tram section), #5 Star Ferry at sunset
+     (beside the Star Ferry pier), #6 dai pai dong night market (market stretch).
+     Each board: dark frame, two posts, the photo on BOTH faces (front faces the
+     road, back copy faces outward, neither mirrored), caption plate on top. */
+  var billboards = [
+    {f:.09,  s: 1, img:BILLBOARD_PHOTOS.harbour, w:17,   h:9.6, label:'維港夜景',   lc:'#8fd0ff'},
+    {f:.435, s: 1, img:BILLBOARD_PHOTOS.ferry,         w:13.3, h:10,  label:'天星小輪',   lc:'#ffd166'},
+    {f:.545, s:-1, img:BILLBOARD_PHOTOS.trams,         w:9.5,  h:9.5, label:'叮叮電車',   lc:'#7bf1a8'},
+    {f:.64,  s: 1, img:BILLBOARD_PHOTOS.daipaidong,    w:17,   h:7.9, label:'大排檔夜色', lc:'#ffb703'}
+  ];
+  var bbLoader = new THREE.TextureLoader();
+  billboards.forEach(function(bb){
+    var pl = placeAt(bb.f, bb.s, HALF + 7.5);
+    var g = new THREE.Group();
+    var cy = 1.1 + bb.h / 2;                       // photo panel centre height
+    // posts + feet
+    [-bb.w * .32, bb.w * .32].forEach(function(px){
+      g.add(box(.5, cy, .5, MAT.darkMetal, px, cy / 2, 0));
+      g.add(box(1.6, .35, 1.6, MAT.concrete, px, .18, 0));
+    });
+    // frame / backing board (photo sits proud of it on both sides)
+    g.add(box(bb.w + .8, bb.h + .8, .4, MAT.darkMetal, 0, cy, 0));
+    g.add(box(bb.w + .8, .45, .5, new THREE.MeshStandardMaterial({color:0xffb703, roughness:.5, emissive:0x664400}), 0, cy + bb.h / 2 + .62, 0));
+    // photo faces
+    var tex = bbLoader.load(bb.img);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    var photoMat = new THREE.MeshBasicMaterial({map:tex});
+    var front = new THREE.Mesh(new THREE.PlaneGeometry(bb.w, bb.h), photoMat);
+    front.position.set(0, cy, .23); g.add(front);
+    var back = new THREE.Mesh(new THREE.PlaneGeometry(bb.w, bb.h), photoMat);
+    back.position.set(0, cy, -.23); back.rotation.y = Math.PI; g.add(back);
+    // caption plates (front + back)
+    var cap = textPlate(bb.label, {col:bb.lc, fs:44, glow:true});
+    cap.position.set(0, cy + bb.h / 2 + 2.35, .1); g.add(cap);
+    var capB = textPlate(bb.label, {col:bb.lc, fs:44, glow:true});
+    capB.position.set(0, cy + bb.h / 2 + 2.35, -.1); capB.rotation.y = Math.PI; g.add(capB);
+    g.position.set(pl.x, 0, pl.z);
+    g.rotation.y = Math.atan2(-pl.nx * bb.s, -pl.nz * bb.s);   // front faces the road
+    S.add(g);
+  });
+
   /* --- street stalls: dai pai dong / food stalls --- */
   function stall(f, side, label, awnCol){
     var pl = placeAt(f, side, HALF + 7);
