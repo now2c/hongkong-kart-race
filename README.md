@@ -82,3 +82,11 @@ python3 -m http.server 8000
 Open `index.html` in a browser to play. If your browser blocks local file
 loading, serve it with e.g. `python3 -m http.server 8000` and open
 http://localhost:8000/
+
+### 天星小輪廣告板修正（2026-11-27）
+
+天星小輪嗰塊板喺部分手機 GPU 會成塊黑晒，因為嗰張 JPEG 用咗 4:2:0
+chroma subsampling、高度 961（奇數），部分硬件 YUV 路徑處理唔到。
+修正：相片重新編碼做 1280×960、progressive、4:4:4；4 塊板嘅相片
+而家先經 2D canvas 解碼做 RGBA 再上載做 texture（`js/scene.js` 嘅
+`bbPhotoTexture`，失敗時退回 `THREE.TextureLoader`）。

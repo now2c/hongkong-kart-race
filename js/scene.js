@@ -331,6 +331,31 @@ var dynFerry, dynJunk, tramGroup, tramIdx, tramHitCool = {};
     {f:.64,  s: 1, img:BILLBOARD_PHOTOS.daipaidong,    w:17,   h:7.9, label:'大排檔夜色', lc:'#ffb703'}
   ];
   var bbLoader = new THREE.TextureLoader();
+  /* Photo textures go through a 2D canvas so WebGL always receives a plain
+     RGBA bitmap. Uploading a 4:2:0 JPEG straight from an <img> takes a
+     hardware YUV path on some mobile GPUs and can come out solid black
+     (that is what happened to the Star Ferry photo); the canvas route
+     decodes to RGBA first and is immune. Falls back to TextureLoader. */
+  function bbPhotoTexture(url, mat){
+    var img = new Image();
+    img.onload = function(){
+      var c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      c.getContext('2d').drawImage(img, 0, 0);
+      var tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      mat.map = tex; mat.color.set(0xffffff); mat.needsUpdate = true;
+    };
+    img.onerror = function(){
+      bbLoader.load(url, function(tex){
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+        mat.map = tex; mat.color.set(0xffffff); mat.needsUpdate = true;
+      });
+    };
+    img.src = url;
+  }
   billboards.forEach(function(bb){
     var pl = placeAt(bb.f, bb.s, HALF + 7.5);
     var g = new THREE.Group();
@@ -343,11 +368,9 @@ var dynFerry, dynJunk, tramGroup, tramIdx, tramHitCool = {};
     // frame / backing board (photo sits proud of it on both sides)
     g.add(box(bb.w + .8, bb.h + .8, .4, MAT.darkMetal, 0, cy, 0));
     g.add(box(bb.w + .8, .45, .5, new THREE.MeshStandardMaterial({color:0xffb703, roughness:.5, emissive:0x664400}), 0, cy + bb.h / 2 + .62, 0));
-    // photo faces
-    var tex = bbLoader.load(bb.img);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-    var photoMat = new THREE.MeshBasicMaterial({map:tex});
+    // photo faces (dark placeholder until the photo texture arrives)
+    var photoMat = new THREE.MeshBasicMaterial({color:0x14161c});
+    bbPhotoTexture(bb.img, photoMat);
     var front = new THREE.Mesh(new THREE.PlaneGeometry(bb.w, bb.h), photoMat);
     front.position.set(0, cy, .23); g.add(front);
     var back = new THREE.Mesh(new THREE.PlaneGeometry(bb.w, bb.h), photoMat);
