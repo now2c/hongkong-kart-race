@@ -531,12 +531,33 @@ var dynFerry, dynJunk, tramGroup, tramIdx, tramHitCool = {};
   tramGroup.add(box(3.04, 1.2, 7, new THREE.MeshStandardMaterial({color:0xe8f6ee, roughness:.3}), 0, 3.1, 0));
   tramGroup.add(box(3.04, 1, 7, new THREE.MeshStandardMaterial({color:0xe8f6ee, roughness:.3}), 0, 1.6, 0));
   tramGroup.add(box(2.2, .5, 3, MAT.darkMetal, 0, 4.4, 0));
+  // bogies / undercarriage so the tram sits on the rails below
+  tramGroup.add(box(2.2, .7, 1.5, MAT.darkMetal, 0, .38, -2.3));
+  tramGroup.add(box(2.2, .7, 1.5, MAT.darkMetal, 0, .38, 2.3));
   var tSign2 = textPlate('叮叮', {col:'#ffffff', fs:40});
   tSign2.position.set(0, 3.1, 3.85); tramGroup.add(tSign2);
   var tp3 = pathPoint(tramIdx), td3 = pathDir(tramIdx);
   tramGroup.position.set(tp3.x, 0, tp3.z);
   tramGroup.rotation.y = Math.atan2(-td3.z, td3.x);
   S.add(tramGroup);
+  /* --- tram tracks under the tram: a rail bed crossing the whole road ---
+     Same local axes as the tram: x runs along the road (tram width),
+     z runs across it (tram travel direction / rail length). The bed is
+     56 long so it covers the tram's full sweep (±(HALF+15) travel plus
+     its half length) — the tram is always on the rails, never past them. */
+  var tramTrack = new THREE.Group();
+  var railMat = new THREE.MeshStandardMaterial({color:0xc8d2de, roughness:.28, metalness:.85});
+  var tieMat = new THREE.MeshStandardMaterial({color:0x3b332a, roughness:.95});
+  var bedMat = new THREE.MeshStandardMaterial({color:0x2e3237, roughness:.97});
+  tramTrack.add(box(4.1, .05, 56, bedMat, 0, .075, 0));
+  for(var tieOff = -27; tieOff <= 27; tieOff += 2){
+    tramTrack.add(box(3.3, .05, .62, tieMat, 0, .1, tieOff));
+  }
+  tramTrack.add(box(.3, .06, 56, railMat, -.95, .135, 0));
+  tramTrack.add(box(.3, .06, 56, railMat, .95, .135, 0));
+  tramTrack.position.set(tp3.x, 0, tp3.z);
+  tramTrack.rotation.y = tramGroup.rotation.y;
+  S.add(tramTrack);
 })();
 function animateScenery(t){
   if(dynFerry){
@@ -1284,10 +1305,22 @@ function stepRacer(r, dt, input){
       scene.remove(t.mesh); traps.splice(ti,1); hitRacer(r);
     }
   }
-  // tram hazard
-  if(tramGroup && r.tramCool <= 0 && Math.hypot(tramGroup.position.x-r.x, tramGroup.position.z-r.z) < 3.4){
-    r.tramCool = 2.5; hitRacer(r);
-    if(r.isPlayer) toast('撞到叮叮電車！', '#7bf1a8');
+  // tram hazard — oriented-box test, not a centre circle. The tram body is
+  // 3 wide × 7.6 long, so the old radius-3.4 circle check missed nose and
+  // tail hits (a kart touching the tram's end sits up to ~5.3 from its
+  // centre) and those collisions felt like they had no effect. Transform
+  // the kart into tram-local space (local x = across the tram's width,
+  // local z = along its length) and test the full rectangle, padded by
+  // roughly the kart's radius, so any touch on the body registers.
+  if(tramGroup && r.tramCool <= 0){
+    var tdx2 = r.x - tramGroup.position.x, tdz2 = r.z - tramGroup.position.z;
+    var tCos = Math.cos(tramGroup.rotation.y), tSin = Math.sin(tramGroup.rotation.y);
+    var tLx = tCos*tdx2 - tSin*tdz2;
+    var tLz = tSin*tdx2 + tCos*tdz2;
+    if(Math.abs(tLx) < 2.65 && Math.abs(tLz) < 4.95){
+      r.tramCool = 2.5; hitRacer(r);
+      if(r.isPlayer) toast('撞到叮叮電車！', '#7bf1a8');
+    }
   }
   // lap counting via index wrap — consume the crossing FIRST (prevIdx is
   // updated before any sound / finish call) so the wrap can only ever fire
